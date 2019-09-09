@@ -14,12 +14,16 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
+
+	"github.com/google/go-github/v28/github"
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -142,6 +146,62 @@ func commandRunner() {
 			go pathRunner(ch)
 		}
 		ch <- r
+	}
+}
+
+var gitHubAPIMeta *github.APIMeta
+var allowedNetworks []*net.IPNet
+
+func hookACLRunner() {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: "871fdd08870a5deb977a2ecd7949ff218a5bb031"},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+
+	update := func() {
+		meta, _, err := client.APIMeta(ctx)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+
+		_, localNet, _ := net.ParseCIDR("127.0.0.1/32")
+		nets := []*net.IPNet{localNet}
+		for _, cidr := range meta.Hooks {
+			_, ipv4Net, err := net.ParseCIDR(cidr)
+			if err != nil {
+				log.Fatal(err)
+			}
+			nets = append(nets, ipv4Net)
+		}
+		allowedNetworks = nets
+		gitHubAPIMeta = meta
+		//log.Print(meta.Hooks)
+
+		//limits, _, err := client.RateLimits(ctx)
+		//log.Print(limits)
+	}
+
+	if gitHubAPIMeta == nil {
+		update()
+	}
+
+	ticker := time.NewTicker(time.Second * 30)
+	defer ticker.Stop()
+
+	done := make(chan bool)
+	log.Print("Starting GitHub meta polling!")
+
+	for {
+		select {
+		case <-done:
+			log.Print("Done GitHub meta polling!")
+		case t := <-ticker.C:
+			log.Print(t)
+			update()
+		}
 	}
 }
 
@@ -297,10 +357,40 @@ func handlePost(w http.ResponseWriter, req *http.Request, bg bool) {
 	}
 }
 
+func authorized(req *http.Request) bool {
+	log.Printf("Validating peer %v", req.RemoteAddr)
+	if len(allowedNetworks) == 0 {
+		log.Printf("allowedNetworks is empty %v", allowedNetworks)
+		return true
+	}
+	log.Printf("Allowed networks %v", allowedNetworks)
+
+	host, _, err := net.SplitHostPort(req.RemoteAddr)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+
+	ip := net.ParseIP(host)
+	for _, ipv4Net := range allowedNetworks {
+		if ipv4Net.Contains(ip) {
+			log.Printf("%v is in %v", ip, ipv4Net)
+			return true
+		}
+		log.Printf("%v is not in %v", ip, ipv4Net)
+	}
+	return false
+}
+
 func handleReq(w http.ResponseWriter, req *http.Request) {
 	backgrounded := req.URL.Query().Get("bg") != "false"
 
-	log.Printf("Handling %v %v", req.Method, req.URL.Path)
+	log.Printf("Handling %v %v from %v", req.Method, req.URL.Path, req.RemoteAddr)
+
+	if !authorized(req) {
+		http.Error(w, "not authorized", http.StatusUnauthorized)
+		return
+	}
 
 	switch req.Method {
 	case "GET":
@@ -319,6 +409,7 @@ func main() {
 	log.SetFlags(log.Lmicroseconds)
 
 	go commandRunner()
+	go hookACLRunner()
 
 	http.HandleFunc("/", handleReq)
 	http.HandleFunc("/favicon.ico",
