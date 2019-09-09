@@ -32,6 +32,8 @@ var (
 	addr    = flag.String("addr", ":8124", "binding address to listen on")
 	secret  = flag.String("secret", "",
 		"Optional secret for authenticating hooks")
+	ghAPIKey = flag.String("github-api-key", "",
+		"Optional key for access GitHub's API")
 )
 
 type commandRequest struct {
@@ -155,7 +157,7 @@ var allowedNetworks []*net.IPNet
 func hookACLRunner() {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "871fdd08870a5deb977a2ecd7949ff218a5bb031"},
+		&oauth2.Token{AccessToken: *ghAPIKey},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
