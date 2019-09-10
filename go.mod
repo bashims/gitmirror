@@ -7,5 +7,6 @@ require (
 	github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad // indirect
 	github.com/dustin/httputil v0.0.0-20170305193905-c47743f54f89
 	github.com/google/go-github/v28 v28.0.1
+	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 )

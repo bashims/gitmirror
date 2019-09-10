@@ -13,7 +13,6 @@ import (
 	"hash"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -21,6 +20,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/google/go-github/v28/github"
 	"golang.org/x/oauth2"
@@ -408,7 +409,7 @@ func handleReq(w http.ResponseWriter, req *http.Request) {
 func main() {
 	flag.Parse()
 
-	log.SetFlags(log.Lmicroseconds)
+	log.SetFormatter(&log.JSONFormatter{})
 
 	go commandRunner()
 
