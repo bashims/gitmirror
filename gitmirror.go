@@ -411,7 +411,10 @@ func main() {
 	log.SetFlags(log.Lmicroseconds)
 
 	go commandRunner()
-	go hookACLRunner()
+
+	if *ghAPIKey != "" {
+		go hookACLRunner()
+	}
 
 	http.HandleFunc("/", handleReq)
 	http.HandleFunc("/favicon.ico",
