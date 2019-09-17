@@ -1,0 +1,40 @@
+# github.com/dustin/go-jsonpointer v0.0.0-20160814072949-ba0abeacc3dc
+github.com/dustin/go-jsonpointer
+# github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad
+github.com/dustin/gojson
+# github.com/dustin/httputil v0.0.0-20170305193905-c47743f54f89
+github.com/dustin/httputil
+# github.com/golang/protobuf v1.2.0
+github.com/golang/protobuf/proto
+# github.com/google/go-github/v28 v28.0.1
+github.com/google/go-github/v28/github
+# github.com/google/go-querystring v1.0.0
+github.com/google/go-querystring/query
+# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+github.com/konsorten/go-windows-terminal-sequences
+# github.com/sirupsen/logrus v1.4.2
+github.com/sirupsen/logrus
+# golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+golang.org/x/crypto/openpgp
+golang.org/x/crypto/openpgp/armor
+golang.org/x/crypto/openpgp/errors
+golang.org/x/crypto/openpgp/packet
+golang.org/x/crypto/openpgp/s2k
+golang.org/x/crypto/cast5
+golang.org/x/crypto/openpgp/elgamal
+# golang.org/x/net v0.0.0-20190311183353-d8887717615a
+golang.org/x/net/context
+golang.org/x/net/context/ctxhttp
+# golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
+golang.org/x/oauth2
+golang.org/x/oauth2/internal
+# golang.org/x/sys v0.0.0-20190422165155-953cdadca894
+golang.org/x/sys/unix
+# google.golang.org/appengine v1.1.0
+google.golang.org/appengine/urlfetch
+google.golang.org/appengine/internal
+google.golang.org/appengine/internal/urlfetch
+google.golang.org/appengine/internal/base
+google.golang.org/appengine/internal/datastore
+google.golang.org/appengine/internal/log
+google.golang.org/appengine/internal/remote_api
