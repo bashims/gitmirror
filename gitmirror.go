@@ -298,6 +298,10 @@ func createRepo(ctx context.Context, w http.ResponseWriter, section string,
 	queueCommand(w, true, abspath, cmds)
 }
 
+func doHealthCheck(ctx context.Context, w http.ResponseWriter) {
+	w.WriteHeader(200)
+}
+
 func doUpdate(ctx context.Context, w http.ResponseWriter, path string,
 	bg bool, payload []byte) {
 	if bg {
@@ -309,7 +313,15 @@ func doUpdate(ctx context.Context, w http.ResponseWriter, path string,
 }
 
 func handleGet(w http.ResponseWriter, req *http.Request, bg bool) {
-	doUpdate(req.Context(), w, getPath(req), bg, nil)
+	ctx := req.Context()
+
+	path := getPath(req)
+	if path == "_healthcheck_" {
+		doHealthCheck(ctx, w)
+		return
+	}
+
+	doUpdate(req.Context(), w, path, bg, nil)
 }
 
 // parseForm parses an HTTP POST form from an io.Reader.
